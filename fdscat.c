@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 const int BUFFER_SIZE = 4096;
-const int WRITE_ZERO_TRY_COUNT = 10;
+const int TRY_COUNT = 10;
 
 int main(int argc, char ** argv){
     char buf [BUFFER_SIZE];
@@ -19,19 +19,20 @@ int main(int argc, char ** argv){
             } else {
                 int ret2;
                 int remained = ret;
-                int zero_try_counter = 0;
+                int tries = 0;
                 while(remained > 0){
                     ret2 = write(STDOUT_FILENO, buf + ret - remained, remained);
                     if(ret2 < 0) {
-                        perror("Writing to STDOUT");
+                        char str[] = "Error write";
+                        perror(str);
                         return EXIT_FAILURE;
-                    }else if(ret2 == 0){
-                        ++zero_try_counter;
-                        if(zero_try_counter == WRITE_ZERO_TRY_COUNT){
+                    } else if(ret2 == 0) {
+                        ++tries;
+                        if(tries == TRY_COUNT){
                             return EXIT_FAILURE;
                         }
                     }else{
-                        zero_try_counter = 0;
+                        tries = 0;
                     }
                     remained -= ret2;
                 }

@@ -6,13 +6,14 @@
 #include <wait.h>
 #include <fcntl.h>
 
+#define DIGITS_NUMBER 40
 int main(int argc, char **argv) {
     char *cat = argv[1];
     int fds[argc - 2];
     for (int i = 0; i < argc - 2; ++i) {
         char *filepath = argv[i + 2];
-        fd[i] = open(filepath, O_RDONLY);
-        if (fd[i] < 0) {
+        fds[i] = open(filepath, O_RDONLY);
+        if (fds[i] < 0) {
             char str[] = "Error open";
             perror(str);
             return EXIT_FAILURE;
@@ -20,14 +21,14 @@ int main(int argc, char **argv) {
     }
     char *new_argv[argc];
     new_argv[0] = cat;
-    char buf[argc - 2][40];
+    char buf[argc - 2][DIGITS_NUMBER];
 
     for (int i = 0; i < argc - 2; ++i) {
         new_argv[i + 1] = buf[i];
-        int ret = sprintf(new_argv[i + 1], "%d", fd[i]);
+        int ret = sprintf(new_argv[i + 1], "%d", fds[i]);
         if (ret < 0) {
             char str[] = "Error sprintf";
-            perror str;
+            perror (str);
             return EXIT_FAILURE;
         }   
     }
@@ -54,9 +55,9 @@ int main(int argc, char **argv) {
             return EXIT_FAILURE;
         }
         for (int i = 0; i < argc - 2; ++i) {
-            int ret2 = close(fd[i]);
+            int ret2 = close(fds[i]);
             if (ret2 == -1) {
-                char str[];
+                char str[] = "Error close";
                 perror(str);
                 return EXIT_FAILURE;
             }
@@ -64,10 +65,3 @@ int main(int argc, char **argv) {
     }
     return EXIT_SUCCESS;
 }
-
-
-
-
-    
-    
-
