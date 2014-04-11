@@ -8,10 +8,11 @@
 
 #define DIGITS_NUMBER 40
 int main(int argc, char **argv) {
-    char *cat = argv[1];
-    int fds[argc - 2];
-    for (int i = 0; i < argc - 2; ++i) {
-        char *filepath = argv[i + 2];
+    char *delim = argv[1];
+    char *cat = argv[2];
+    int fds[argc - 3];
+    for (int i = 0; i < argc - 3; ++i) {
+        char *filepath = argv[i + 3];
         fds[i] = open(filepath, O_RDONLY);
         if (fds[i] < 0) {
             char str[] = "Error open";
@@ -19,24 +20,26 @@ int main(int argc, char **argv) {
             return EXIT_FAILURE;
         }
     }
-    char *new_argv[argc];
-    new_argv[0] = cat;
-    char buf[argc - 2][DIGITS_NUMBER];
+    char *n_argv[argc];
+    n_argv[0] = cat;
+    n_argv[1] = delim;
+    
+    char buf[argc - 3][DIGITS_NUMBER];
 
-    for (int i = 0; i < argc - 2; ++i) {
-        new_argv[i + 1] = buf[i];
-        int ret = sprintf(new_argv[i + 1], "%d", fds[i]);
+    for (int i = 0; i < argc - 3; ++i) {
+        n_argv[i + 2] = buf[i];
+        int ret = sprintf(n_argv[i + 2], "%d", fds[i]);
         if (ret < 0) {
             char str[] = "Error sprintf";
             perror (str);
             return EXIT_FAILURE;
         }   
     }
-    new_argv[argc - 1] = 0;
+    n_argv[argc - 1] = 0;
 
     pid_t pid = fork();
     if (pid == 0) {
-        int ret = execvp(cat, new_argv);
+        int ret = execvp(cat, n_argv);
         if (ret == -1) {
             char str[] = "Error exec";
             perror(str);
@@ -54,7 +57,7 @@ int main(int argc, char **argv) {
             perror(str);
             return EXIT_FAILURE;
         }
-        for (int i = 0; i < argc - 2; ++i) {
+        for (int i = 0; i < argc - 3; ++i) {
             int ret2 = close(fds[i]);
             if (ret2 == -1) {
                 char str[] = "Error close";
